@@ -11,13 +11,13 @@ class colorPicker {
         console.error(error);
     }
 
-    showColor ({sRGBHex}) {
+    showColor({ sRGBHex }) {
         this.$color.style.backgroundColor = sRGBHex;
         this.$button.classList.add('button--picked');
         this.$str.classList.add('str--picked');
         this.$hex.style.color = colorPicker.invertColor(sRGBHex);
-        this.$hex.innerText = sRGBHex;
-        navigator.clipboard.writeText(sRGBHex.toUpperCase())
+        this.$hex.innerText = sRGBHex.colorHex().toUpperCase();
+        navigator.clipboard.writeText(sRGBHex.colorHex().toUpperCase())
             .then(() => {
                 this.showInfo();
             })
@@ -55,6 +55,8 @@ class colorPicker {
             colorPicker.showError('EyeDropper API is not supported on this platform');
         }
     }
+
+
 }
 
 const picker = new colorPicker(
@@ -64,5 +66,37 @@ const picker = new colorPicker(
     'hex',
     'str'
 );
+
+String.prototype.colorHex = function () {
+    var that = this;
+    if (/^(rgb|RGB)/.test(that)) {
+        var aColor = that.replace(/(?:\(|\)|rgb|RGB)*/g, "").split(",");
+        var strHex = "#";
+        for (var i = 0; i < aColor.length; i++) {
+            var hex = Number(aColor[i]).toString(16);
+            if (parseInt(hex,16) < 16) {
+                hex = "0" + hex;
+            }
+            strHex += hex;
+        }
+        if (strHex.length !== 7) {
+            strHex = that;
+        }
+        return strHex;
+    } else if (reg.test(that)) {
+        var aNum = that.replace(/#/, "").split("");
+        if (aNum.length === 6) {
+            return that;
+        } else if (aNum.length === 3) {
+            var numHex = "#";
+            for (var i = 0; i < aNum.length; i += 1) {
+                numHex += (aNum[i] + aNum[i]);
+            }
+            return numHex;
+        }
+    } else {
+        return that;
+    }
+};
 
 picker.init();
